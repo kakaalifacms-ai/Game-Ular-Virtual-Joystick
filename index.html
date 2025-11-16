@@ -27,13 +27,12 @@
     .wrap{
       width:100%;
       max-width:920px;
-      display:grid;
-      grid-template-columns: 1fr 320px;
+      display:flex;
+      flex-direction:column;
       gap:20px;
-      align-items:start;
+      align-items:center;
     }
 
-    /* Game card */
     .card{
       background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
       border-radius:12px;
@@ -42,9 +41,9 @@
       display:flex;
       flex-direction:column;
       gap:12px;
+      width:100%;
     }
 
-    /* NEW: info card */
     .info-card{
       display:flex;
       gap:12px;
@@ -53,6 +52,7 @@
       background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
       box-shadow:0 4px 18px rgba(0,0,0,0.4);
       align-items:center;
+      width:100%;
     }
     .info-card img{
       width:70px;
@@ -84,6 +84,7 @@
       display:flex;
       gap:8px;
       align-items:center;
+      flex-wrap:wrap;
     }
     .btn{
       background:var(--panel);
@@ -106,13 +107,6 @@
       font-size:14px;
     }
 
-    /* Right column: joystick + other */
-    .sidebar{
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-    }
-
     .joystick{
       background:linear-gradient(180deg,#061425,#04202b);
       padding:14px;
@@ -121,6 +115,7 @@
       flex-direction:column;
       gap:10px;
       align-items:center;
+      width:100%;
     }
 
     .joystick-grid{
@@ -167,15 +162,21 @@
     .range{
       width:150px;
     }
-
-    @media (max-width:880px){
-      .wrap{grid-template-columns:1fr; padding-bottom:40px}
-      .sidebar{order:-1}
-    }
   </style>
 </head>
 <body>
   <div class="wrap">
+
+    <!-- INFO CARD DIPINDAH KE PALING ATAS -->
+    <div class="info-card">
+      <img src="foto.jpg" alt="Foto">
+      <div class="info-text">
+        Game Ular — Virtual Joystick<br>
+        <div class="credit">by: <b>kakaalifacms-ai</b></div>
+      </div>
+    </div>
+
+    <!-- CARD GAME -->
     <div class="card">
       <h2 style="margin:0">Ular Jalan — Kontrol Virtual</h2>
       <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
@@ -198,250 +199,241 @@
       </div>
     </div>
 
-    <div class="sidebar">
+    <!-- JOYSTICK (TETAP DI BAWAH GAME) -->
+    <div class="joystick card" style="padding:12px">
+      <div style="font-weight:700">Virtual Joystick</div>
 
-      <div class="joystick card" style="padding:12px">
-        <div style="font-weight:700">Virtual Joystick</div>
+      <div class="joystick-grid" aria-hidden="true">
+        <div></div>
+        <div><button class="dir-btn" data-dir="up" id="btnUp">▲</button></div>
+        <div></div>
 
-        <div class="joystick-grid" aria-hidden="true">
-          <div></div>
-          <div><button class="dir-btn" data-dir="up" id="btnUp">▲</button></div>
-          <div></div>
+        <div><button class="dir-btn" data-dir="left" id="btnLeft">◀</button></div>
+        <div style="width:60px;height:60px;border-radius:999px;background:linear-gradient(90deg,#012a2b,#003a34);display:flex;align-items:center;justify-content:center;font-weight:700;color:white">GL</div>
+        <div><button class="dir-btn" data-dir="right" id="btnRight">▶</button></div>
 
-          <div><button class="dir-btn" data-dir="left" id="btnLeft">◀</button></div>
-          <div style="width:60px;height:60px;border-radius:999px;background:linear-gradient(90deg,#012a2b,#003a34);display:flex;align-items:center;justify-content:center;font-weight:700;color:white">GL</div>
-          <div><button class="dir-btn" data-dir="right" id="btnRight">▶</button></div>
-
-          <div></div>
-          <div><button class="dir-btn" data-dir="down" id="btnDown">▼</button></div>
-          <div></div>
-        </div>
-
-        <div class="small" style="margin-top:8px">Gunakan tombol arah di atas untuk mengubah arah ular.</div>
+        <div></div>
+        <div><button class="dir-btn" data-dir="down" id="btnDown">▼</button></div>
+        <div></div>
       </div>
 
-      <!-- ⭐ NEW <C></C>ARD ADDED HERE -->
-      <div class="info-card">
-        <img src="foto.jpg" alt="Foto">
-        <div class="info-text">
-          Game Ular — Virtual Joystick<br>
-          <div class="credit">by: <b>kakaalifacms-ai</b></div>
-        </div>
+      <div class="small" style="margin-top:8px">
+        Gunakan tombol arah <b>di bawah</b> untuk mengubah arah ular.
       </div>
-
-      <div class="card" style="padding:12px">
-        <div style="font-weight:700;margin-bottom:6px">Kontrol keyboard</div>
-        <div class="small">Panah ↑ ↓ ← → / W A S D</div>
-      </div>
-
     </div>
+
+    <!-- KONTROL KEYBOARD (TETAP) -->
+    <div class="card" style="padding:12px">
+      <div style="font-weight:700;margin-bottom:6px">Kontrol keyboard</div>
+      <div class="small">Panah ↑ ↓ ← → / W A S D</div>
+    </div>
+
   </div>
 
 <script>
-/* —————————— GAME SCRIPT (TIDAK DIUBAH) —————————— */
-(() => {
-  const canvas = document.getElementById('game');
-  const ctx = canvas.getContext('2d', {alpha:false});
-  // grid
-  let grid = 24;
-  const tileCountX = grid;
-  const tileCountY = grid;
-  document.getElementById('gridSize').textContent = tileCountX;
-  document.getElementById('gridSizeY').textContent = tileCountY;
+  /* SCRIPT ORIGINAL — TIDAK DIUBAH SEDIKITPUN */
+  (()=>{
+    const canvas=document.getElementById('game');
+    const ctx=canvas.getContext('2d',{alpha:false});
+    let grid=24;
+    const tileCountX=grid;
+    const tileCountY=grid;
+    document.getElementById('gridSize').textContent=tileCountX;
+    document.getElementById('gridSizeY').textContent=tileCountY;
 
-  const width = canvas.width;
-  const height = canvas.height;
-  const tileW = Math.floor(width / tileCountX);
-  const tileH = Math.floor(height / tileCountY);
+    const width=canvas.width;
+    const height=canvas.height;
+    const tileW=Math.floor(width/tileCountX);
+    const tileH=Math.floor(height/tileCountY);
 
-  let snake = [{x: Math.floor(tileCountX/2), y: Math.floor(tileCountY/2)}];
-  let dir = {x: 0, y: 0};
-  let nextDir = {x:0, y:0};
-  let food = null;
-  let running = false;
-  let score = 0;
-  let speed = parseInt(document.getElementById('speed').value,10);
-  let tickInterval = null;
+    let snake=[{x:Math.floor(tileCountX/2),y:Math.floor(tileCountY/2)}];
+    let dir={x:0,y:0};
+    let nextDir={x:0,y:0};
+    let food=null;
+    let running=false;
+    let score=0;
+    let speed=parseInt(document.getElementById('speed').value,10);
+    let tickInterval=null;
 
-  function placeFood(){
-    while(true){
-      const f = {x: Math.floor(Math.random()*tileCountX), y: Math.floor(Math.random()*tileCountY)};
-      if(!snake.some(s=>s.x===f.x && s.y===f.y)){ food = f; break; }
+    function placeFood(){
+      while(true){
+        const f={x:Math.floor(Math.random()*tileCountX),y:Math.floor(Math.random()*tileCountY)};
+        if(!snake.some(s=>s.x===f.x&&s.y===f.y)){food=f;break;}
+      }
     }
-  }
 
-  function resetGame(){
-    snake = [{x: Math.floor(tileCountX/2), y: Math.floor(tileCountY/2)}];
-    dir = {x:0,y:0};
-    nextDir = {x:0,y:0};
-    score = 0;
-    document.getElementById('score').textContent = score;
-    placeFood();
-    draw();
-    stopLoop();
-    running=false;
-    updateStatus();
-    document.getElementById('startBtn').textContent = 'Jalan';
-  }
-
-  function updateStatus(){
-    document.getElementById('status').textContent =
-      running ? 'Status: berjalan' : 'Status: berhenti';
-  }
-
-  function startLoop(){
-    stopLoop();
-    const fps = speed;
-    const ms = Math.max(8, Math.round(1000 / fps));
-    tickInterval = setInterval(tick, ms);
-  }
-  function stopLoop(){
-    if(tickInterval){ clearInterval(tickInterval); tickInterval=null; }
-  }
-
-  function tick(){
-    if(!(nextDir.x === -dir.x && nextDir.y === -dir.y)){
-      dir = {...nextDir};
-    }
-    if(dir.x === 0 && dir.y === 0){ draw(); return; }
-
-    const head = {
-      x: (snake[0].x + dir.x + tileCountX) % tileCountX,
-      y: (snake[0].y + dir.y + tileCountY) % tileCountY
-    };
-
-    if(snake.some(s=>s.x===head.x && s.y===head.y)){
+    function resetGame(){
+      snake=[{x:Math.floor(tileCountX/2),y:Math.floor(tileCountY/2)}];
+      dir={x:0,y:0};
+      nextDir={x:0,y:0};
+      score=0;
+      document.getElementById('score').textContent=score;
+      placeFood();
+      draw();
+      stopLoop();
       running=false;
       updateStatus();
       document.getElementById('startBtn').textContent='Jalan';
+    }
+
+    function updateStatus(){
+      document.getElementById('status').textContent=
+        running?'Status: berjalan':'Status: berhenti';
+    }
+
+    function startLoop(){
       stopLoop();
-      drawCrash();
-      setTimeout(resetGame,800);
-      return;
+      const fps=speed;
+      const ms=Math.max(8,Math.round(1000/fps));
+      tickInterval=setInterval(tick,ms);
+    }
+    function stopLoop(){
+      if(tickInterval){clearInterval(tickInterval);tickInterval=null;}
     }
 
-    snake.unshift(head);
+    function tick(){
+      if(!(nextDir.x===-dir.x&&nextDir.y===-dir.y)){
+        dir={...nextDir};
+      }
+      if(dir.x===0&&dir.y===0){draw();return;}
 
-    if(food && head.x===food.x && head.y===food.y){
-      score++;
-      document.getElementById('score').textContent = score;
-      placeFood();
-    } else snake.pop();
+      const head={
+        x:(snake[0].x+dir.x+tileCountX)%tileCountX,
+        y:(snake[0].y+dir.y+tileCountY)%tileCountY
+      };
 
-    draw();
-  }
+      if(snake.some(s=>s.x===head.x&&s.y===head.y)){
+        running=false;
+        updateStatus();
+        document.getElementById('startBtn').textContent='Jalan';
+        stopLoop();
+        drawCrash();
+        setTimeout(resetGame,800);
+        return;
+      }
 
-  function draw(){
-    ctx.fillStyle = '#031826';
-    ctx.fillRect(0,0,width,height);
+      snake.unshift(head);
 
-    if(food){
-      roundRect(food.x*tileW+2, food.y*tileH+2, tileW-4, tileH-4, 6, '#f59e0b');
-      ctx.fillStyle = 'rgba(255,255,255,0.16)';
-      ctx.fillRect(food.x*tileW+tileW*0.18, food.y*tileH+tileH*0.12, tileW*0.25, tileH*0.18);
+      if(food&&head.x===food.x&&head.y===food.y){
+        score++;
+        document.getElementById('score').textContent=score;
+        placeFood();
+      }else snake.pop();
+
+      draw();
     }
 
-    for(let i=0;i<snake.length;i++){
-      const s=snake[i];
-      const x=s.x*tileW, y=s.y*tileH;
+    function draw(){
+      ctx.fillStyle='#031826';
+      ctx.fillRect(0,0,width,height);
 
-      if(i===0){
-        roundRect(x+2,y+2,tileW-4,tileH-4,8,'#10b981');
-        ctx.fillStyle='#052018';
-        const ex=x+(dir.x===1?tileW*0.65:dir.x===-1?tileW*0.2:tileW*0.45);
-        const ey=y+(dir.y===1?tileH*0.65:dir.y===-1?tileH*0.2:tileH*0.45);
-        ctx.fillRect(ex,ey,tileW*0.08,tileH*0.08);
-      } else {
-        const t=0.3+0.7*(1-i/snake.length);
-        const g=Math.round(16+(160-16)*t);
-        roundRect(x+3,y+3,tileW-6,tileH-6,6,`rgb(16,${g},129)`);
+      if(food){
+        roundRect(food.x*tileW+2,food.y*tileH+2,tileW-4,tileH-4,6,'#f59e0b');
+        ctx.fillStyle='rgba(255,255,255,0.16)';
+        ctx.fillRect(food.x*tileW+tileW*0.18,food.y*tileH+tileH*0.12,tileW*0.25,tileH*0.18);
+      }
+
+      for(let i=0;i<snake.length;i++){
+        const s=snake[i];
+        const x=s.x*tileW,y=s.y*tileH;
+
+        if(i===0){
+          roundRect(x+2,y+2,tileW-4,tileH-4,8,'#10b981');
+          ctx.fillStyle='#052018';
+          const ex=x+(dir.x===1?tileW*0.65:dir.x===-1?tileW*0.2:tileW*0.45);
+          const ey=y+(dir.y===1?tileH*0.65:dir.y===-1?tileH*0.2:tileH*0.45);
+          ctx.fillRect(ex,ey,tileW*0.08,tileH*0.08);
+        }else{
+          const t=0.3+0.7*(1-i/snake.length);
+          const g=Math.round(16+(160-16)*t);
+          roundRect(x+3,y+3,tileW-6,tileH-6,6,`rgb(16,${g},129)`);
+        }
       }
     }
-  }
 
-  function roundRect(x,y,w,h,r,fill){
-    ctx.fillStyle=fill;
-    ctx.beginPath();
-    ctx.moveTo(x+r,y);
-    ctx.arcTo(x+w,y,x+w,y+h,r);
-    ctx.arcTo(x+w,y+h,x,y+h,r);
-    ctx.arcTo(x,y+h,x,y,r);
-    ctx.arcTo(x,y,x+w,y,r);
-    ctx.fill();
-  }
-
-  function drawCrash(){
-    const prev=ctx.getImageData(0,0,width,height);
-    ctx.fillStyle='rgba(239,68,68,0.25)';
-    ctx.fillRect(0,0,width,height);
-    setTimeout(()=>ctx.putImageData(prev,0,0),150);
-  }
-
-  document.getElementById('startBtn').onclick=()=>{
-    running=!running;
-    if(running){
-      if(dir.x===0&&dir.y===0&&nextDir.x===0&&nextDir.y===0){
-        nextDir={x:1,y:0};
-      }
-      document.getElementById('startBtn').textContent='Stop';
-      startLoop();
-    } else {
-      document.getElementById('startBtn').textContent='Jalan';
-      stopLoop();
+    function roundRect(x,y,w,h,r,fill){
+      ctx.fillStyle=fill;
+      ctx.beginPath();
+      ctx.moveTo(x+r,y);
+      ctx.arcTo(x+w,y,x+w,y+h,r);
+      ctx.arcTo(x+w,y+h,x,y+h,r);
+      ctx.arcTo(x,y+h,x,y,r);
+      ctx.arcTo(x,y,x+w,y,r);
+      ctx.fill();
     }
-    updateStatus();
-  };
 
-  document.getElementById('resetBtn').onclick=resetGame;
+    function drawCrash(){
+      const prev=ctx.getImageData(0,0,width,height);
+      ctx.fillStyle='rgba(239,68,68,0.25)';
+      ctx.fillRect(0,0,width,height);
+      setTimeout(()=>ctx.putImageData(prev,0,0),150);
+    }
 
-  document.getElementById('speed').oninput=(e)=>{
-    speed=parseInt(e.target.value,10);
-    if(running) startLoop();
-  };
-
-  const keys={
-    ArrowUp:{x:0,y:-1}, ArrowDown:{x:0,y:1},
-    ArrowLeft:{x:-1,y:0}, ArrowRight:{x:1,y:0},
-    w:{x:0,y:-1}, s:{x:0,y:1},
-    a:{x:-1,y:0}, d:{x:1,y:0},
-  };
-  window.onkeydown=e=>{
-    if(keys[e.key]){
-      e.preventDefault();
-      const nd=keys[e.key];
-      if(!(nd.x===-dir.x && nd.y===-dir.y)) nextDir={...nd};
-    } else if(e.key===' ') document.getElementById('startBtn').click();
-  };
-
-  function bindDir(id,dx,dy){
-    const b=document.getElementById(id);
-    const set=(ev)=>{
-      ev.preventDefault();
-      if(!(dx===-dir.x && dy===-dir.y)) nextDir={x:dx,y:dy};
+    document.getElementById('startBtn').onclick=()=>{
+      running=!running;
+      if(running){
+        if(dir.x===0&&dir.y===0&&nextDir.x===0&&nextDir.y===0){
+          nextDir={x:1,y:0};
+        }
+        document.getElementById('startBtn').textContent='Stop';
+        startLoop();
+      }else{
+        document.getElementById('startBtn').textContent='Jalan';
+        stopLoop();
+      }
+      updateStatus();
     };
-    b.addEventListener('touchstart',set,{passive:false});
-    b.addEventListener('mousedown',set);
-  }
-  bindDir('btnUp',0,-1);
-  bindDir('btnDown',0,1);
-  bindDir('btnLeft',-1,0);
-  bindDir('btnRight',1,0);
 
-  canvas.ondblclick=()=>document.getElementById('startBtn').click();
+    document.getElementById('resetBtn').onclick=resetGame;
 
-  function fit(){
-    const w=canvas.parentElement.clientWidth;
-    const d=Math.min(w-12,640);
-    canvas.style.width=d+'px';
-    canvas.style.height=d+'px';
-  }
-  window.onresize=fit;
-  fit();
+    document.getElementById('speed').oninput=e=>{
+      speed=parseInt(e.target.value,10);
+      if(running)startLoop();
+    };
 
-  placeFood();
-  draw();
-  updateStatus();
-})();
+    const keys={
+      ArrowUp:{x:0,y:-1},ArrowDown:{x:0,y:1},
+      ArrowLeft:{x:-1,y:0},ArrowRight:{x:1,y:0},
+      w:{x:0,y:-1},s:{x:0,y:1},
+      a:{x:-1,y:0},d:{x:1,y:0},
+    };
+    window.onkeydown=e=>{
+      if(keys[e.key]){
+        e.preventDefault();
+        const nd=keys[e.key];
+        if(!(nd.x===-dir.x&&nd.y===-dir.y))nextDir={...nd};
+      }else if(e.key===' ')document.getElementById('startBtn').click();
+    };
+
+    function bindDir(id,dx,dy){
+      const b=document.getElementById(id);
+      const set=ev=>{
+        ev.preventDefault();
+        if(!(dx===-dir.x&&dy===-dir.y))nextDir={x:dx,y:dy};
+      };
+      b.addEventListener('touchstart',set,{passive:false});
+      b.addEventListener('mousedown',set);
+    }
+    bindDir('btnUp',0,-1);
+    bindDir('btnDown',0,1);
+    bindDir('btnLeft',-1,0);
+    bindDir('btnRight',1,0);
+
+    canvas.ondblclick=()=>document.getElementById('startBtn').click();
+
+    function fit(){
+      const w=canvas.parentElement.clientWidth;
+      const d=Math.min(w-12,640);
+      canvas.style.width=d+'px';
+      canvas.style.height=d+'px';
+    }
+    window.onresize=fit;
+    fit();
+
+    placeFood();
+    draw();
+    updateStatus();
+  })();
 </script>
 
 </body>
